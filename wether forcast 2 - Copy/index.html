@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+        body {
+    background: url('5555.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+}
+
+        .card {
+            width: 90%;
+            max-width: 470px;
+            background: linear-gradient(135deg, #00feba, #5b548a);
+            margin: 100px auto 0;
+            border-radius: 20px;
+            padding: 40px 35px;
+            text-align: center;
+        }
+        .search {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search input {
+            border: 0;
+            outline: 0;
+            background: #ebfffc;
+            color: #555;
+            padding: 10px 25px;
+            height: 60px;
+            border-radius: 30px;
+            flex: 1;
+            margin-right: 16px;
+            font-size: 18px;
+        }
+        .search button {
+            border: 0;
+            outline: 0;
+            background: #ebfffc;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+        }
+        .search button img {
+            width: 16px;
+        }
+        .weather-icon {
+            width: 170px;
+            margin-top: 30px;
+        }
+        .weather h1 {
+            font-size: 80px;
+            font-weight: 500;
+        }
+        .weather h2 {
+            font-size: 45px;
+            font-weight: 400;
+        }
+        .details {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            margin-top: 30px;
+        }
+        .col {
+            display: flex;
+            align-items: center;
+            text-align: left;
+        }
+        .col img {
+            width: 40px;
+            margin-right: 10px;
+        }
+        .humidity, .wind {
+            font-size: 28px;
+        }
+        .forecast {
+            margin-top: 40px;
+        }
+        .forecast-day {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .forecast-day img {
+            width: 40px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="search">
+        <input type="text" placeholder="Enter city name" spellcheck="false">
+        <button><img src="images/search.png" alt="Search"></button>
+    </div>
+    <div class="error" style="display: none;">
+        <p>Invalid city name</p>
+    </div>
+    <div class="weather">
+        <img src="images/rain.png" class="weather-icon" alt="Weather">
+        <h1 class="temp">22&deg;C</h1>
+        <h2 class="city">New York</h2>
+        <div class="details">
+            <div class="col">
+                <img src="images/humidity.png" alt="Humidity">
+                <div>
+                    <p class="humidity">50%</p>
+                    <p>Humidity</p>
+                </div>
+            </div>
+            <div class="col">
+                <img src="images/wind.png" alt="Wind">
+                <div>
+                    <p class="wind">15 km/h</p>
+                    <p>Wind Speed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="forecast">
+        <h3>5-Day Forecast</h3>
+        <div class="forecast-container">
+        </div>
+    </div>
+</div>
+
+<script>
+    const apikey = "305ed99d42965d6c3750b76aa04a84de";
+    const weatherApiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+    const forecastApiUrl = "https://api.openweathermap.org/data/2.5/forecast?units=metric&q=";
+
+    const searchBox = document.querySelector(".search input");
+    const searchButton = document.querySelector(".search button");
+    const weatherIcon = document.querySelector(".weather-icon");
+    const forecastContainer = document.querySelector(".forecast-container");
+    const body = document.body;
+
+    async function checkWeather(city) {
+        const response = await fetch(weatherApiUrl + city + `&appid=${apikey}`);
+
+        if (response.status === 404) {
+            document.querySelector(".error").style.display = "block";
+            document.querySelector(".weather").style.display = "none";
+            document.querySelector(".forecast").style.display = "none";
+        } else {
+            const data = await response.json();
+            document.querySelector(".city").innerHTML = data.name;
+            document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "&deg;C";
+            document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+            document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+
+            const weatherMain = data.weather[0].main;
+
+            if (weatherMain === "Clouds") weatherIcon.src = "images/clouds.png";
+            else if (weatherMain === "Clear") weatherIcon.src = "images/clear.png";
+            else if (weatherMain === "Rain") weatherIcon.src = "images/rain.png";
+            else if (weatherMain === "Drizzle") weatherIcon.src = "images/drizzle.png";
+            else if (weatherMain === "Mist") weatherIcon.src = "images/mist.png";
+
+            if (weatherMain === "Clouds") body.style.background = "url('clouds.jpg') no-repeat center center fixed";
+            else if (weatherMain === "Clear") body.style.background = "url('clear.jpg') no-repeat center center fixed";
+            else if (weatherMain === "Rain") body.style.background = "url('rain.jpg') no-repeat center center fixed";
+            else if (weatherMain === "Drizzle") body.style.background = "url('drizzle.jpg') no-repeat center center fixed";
+            else if (weatherMain === "Mist") body.style.background = "url('mist.jpg') no-repeat center center fixed";
+
+            body.style.backgroundSize = "cover";
+
+            document.querySelector(".weather").style.display = "block";
+            document.querySelector(".error").style.display = "none";
+            loadForecast(city);
+        }
+    }
+
+    async function loadForecast(city) {
+        const response = await fetch(forecastApiUrl + city + `&appid=${apikey}`);
+
+        if (response.ok) {
+            const data = await response.json();
+            forecastContainer.innerHTML = ""; 
+
+            const dailyData = data.list.filter(item => item.dt_txt.includes("12:00:00"));
+
+            dailyData.forEach(day => {
+                const date = new Date(day.dt_txt).toLocaleDateString("en-US", {
+                    weekday: "long"
+                });
+                const temp = Math.round(day.main.temp) + "&deg;C";
+                const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
+
+                const forecastDay = document.createElement("div");
+                forecastDay.classList.add("forecast-day");
+                forecastDay.innerHTML = `
+                <div>${date}</div>
+                    <div>${temp}</div>
+                `;
+
+                forecastContainer.appendChild(forecastDay);
+            });
+            document.querySelector(".forecast").style.display = "block";
+        }
+    }
+
+    searchButton.addEventListener("click", () => {
+        const city = searchBox.value;
+        checkWeather(city);
+    });
+</script>
+
+
+</body>
+</html>
